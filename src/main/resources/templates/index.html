@@ -2,9 +2,35 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Index</title>
+    <title>Books</title>
 </head>
 <body>
-Hello, World!
+<h3>Add book</h3>
+<form action="/add-book" method="post">
+    Title:
+    <input type="text" name="title"/>
+    Author:
+    <input type="text" name="author"/>
+    ISBN:
+    <input type="text" name="isbn"/>
+    <input type="submit" value="Save"/>
+</form>
+
+<h3>Books</h3>
+<table>
+    <thead>
+    <th>Title</th>
+    <th>Author</th>
+    <th>ISBN</th>
+    </thead>
+    <tbody>
+    <tr th:each="book: ${books}">
+        <td th:text="${book.title}"></td>
+        <td th:text="${book.author}"></td>
+        <td th:text="${book.isbn}"></td>
+    </tr>
+    </tbody>
+</table>
+
 </body>
 </html>
