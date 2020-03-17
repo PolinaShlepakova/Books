@@ -6,8 +6,8 @@
 </head>
 <body>
 <h3>Search by title</h3>
-<form action="/book" method="get">
-    <input type="text" name="title"/>
+<form action="/books-by-isbn" method="get">
+    <input type="text" name="isbn"/>
     <input type="submit" value="Search"/>
 </form>
 
@@ -22,7 +22,7 @@
     <tbody>
     <tr th:each="book: ${books}">
         <td>
-            <a th:href="@{/book/{id}(id=${book.id})}" th:text="${book.title}"></a>
+            <a th:href="@{/books/{id}(id=${book.id})}" th:text="${book.title}"></a>
         </td>
         <td th:text="${book.author}"></td>
         <td th:text="${book.isbn}"></td>
