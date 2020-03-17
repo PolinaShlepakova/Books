@@ -43,18 +43,10 @@ public class BookController {
 
     @RequestMapping(value = "/books", method = RequestMethod.GET)
     public String findByTitle(final Model model,
-                              @RequestParam final String title) {
-        List<BookEntity> books = bookService.findByTitle(title);
+                              @RequestParam final String text) {
+        List<BookEntity> books = bookService.findByTitleOrIsbn(text);
         model.addAttribute("books", books);
-        return "books-by-title";
-    }
-
-    @RequestMapping(value = "/books-by-isbn", method = RequestMethod.GET)
-    public String findByIsbn(final Model model,
-                              @RequestParam final String isbn) {
-        List<BookEntity> books = bookService.findByIsbn(isbn);
-        model.addAttribute("books", books);
-        return "books-by-isbn";
+        return "books";
     }
 
 }

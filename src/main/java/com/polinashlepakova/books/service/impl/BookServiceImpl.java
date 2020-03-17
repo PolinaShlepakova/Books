@@ -31,12 +31,8 @@ public class BookServiceImpl implements IBookService {
     }
 
     @Override
-    public List<BookEntity> findByTitle(final String title) {
-        return bookRepository.findAllByTitleContainingIgnoreCase(title);
-    }
-
-    @Override
-    public List<BookEntity> findByIsbn(final String isbn) {
-        return bookRepository.findAllByIsbn(isbn);
+    public List<BookEntity> findByTitleOrIsbn(final String text) {
+        return bookRepository.
+                findAllByTitleContainingIgnoreCaseOrIsbnContaining(text, text);
     }
 }

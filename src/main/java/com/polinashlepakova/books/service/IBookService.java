@@ -13,7 +13,5 @@ public interface IBookService {
 
     Optional<BookEntity> findById(final int id);
 
-    List<BookEntity> findByTitle(final String title);
-
-    List<BookEntity> findByIsbn(final String isbn);
+    List<BookEntity> findByTitleOrIsbn(final String text);
 }
