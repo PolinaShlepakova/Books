@@ -1,12 +1,22 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Books</title>
 </head>
 <body>
+<style>
+    table {
+        border-collapse: collapse;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+        padding: 5px;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
 <h3>Add book</h3>
-<form action="/books" method="post">
+<form id="addBookForm">
     Title:
     <input type="text" name="title"/>
     Author:
@@ -17,30 +27,98 @@
 </form>
 
 <h3>Search by title or ISBN</h3>
-<form action="/books" method="get">
+<form id="searchForm">
     <input type="text" name="text"/>
     <input type="submit" value="Search"/>
 </form>
 
 <h3>Books</h3>
-<table>
-    <thead>
-    <th>Title</th>
-    <th>Author</th>
-    <th>ISBN</th>
-    <th>ID</th>
-    </thead>
-    <tbody>
-    <tr th:each="book: ${books}">
-        <td>
-            <a th:href="@{/books/{id}(id=${book.id})}" th:text="${book.title}"></a>
-        </td>
-        <td th:text="${book.author}"></td>
-        <td th:text="${book.isbn}"></td>
-        <td th:text="${book.id}"></td>
-    </tr>
-    </tbody>
-</table>
+<div>
+    <button id="getBooks">Get all books</button>
+    <table>
+        <thead>
+        <th>Title</th>
+        <th>Author</th>
+        <th>ISBN</th>
+        <th>ID</th>
+        </thead>
+        <tbody id="booksTable">
+
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function addBookToTable(book) {
+        var $books = $('#booksTable');
+        $books.append('<tr><td>' + book.title + '</td><td>' + book.author + '</td><td>' + book.isbn + '</td><td>' + book.id + '</td></tr>');
+    }
+
+    function refillBooksTable(response) {
+        var $books = $('#booksTable');
+        $books.empty();
+        response.forEach(function(book) {
+            addBookToTable(book);
+        })
+    }
+
+    function updateBookList() {
+        $.ajax({
+            type: 'GET',
+            url: '/books',
+            success: function (response) {
+                refillBooksTable(response);
+            }
+        });
+    }
+
+    $(function() {
+        $(document).ready(function() {
+            updateBookList();
+        });
+
+        $('#addBookForm').submit(function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: '/books',
+                dataType: 'json',
+                data: JSON.stringify({
+                    title: $(this).find('[name=title]').val(),
+                    author: $(this).find('[name=author]').val(),
+                    isbn: $(this).find('[name=isbn]').val()
+                }),
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('Content-Type', 'application/json')
+                },
+                success: function (book) {
+                    addBookToTable(book);
+                }
+            });
+        });
+
+        $('#searchForm').submit(function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'GET',
+                url: '/books',
+                dataType: 'json',
+                data: {
+                    text: $(this).find('[name=text]').val()
+                },
+                success: function (response) {
+                    refillBooksTable(response);
+                }
+            });
+        });
+
+        $('#getBooks').click(function() {
+            updateBookList();
+        });
+    });
+</script>
 
 </body>
 </html>
