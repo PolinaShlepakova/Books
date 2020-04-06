@@ -7,6 +7,7 @@ import com.polinashlepakova.books.utils.Converter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class BookController {
 
     private final IBookService bookService;
 
-    @RequestMapping(value = "/books", method = RequestMethod.GET)
+    @GetMapping("/books")
     public ResponseEntity<List<BookDTO>> getBooks(
             @RequestParam(name = "text", required = false) final String text) {
         List<BookEntity> books;
@@ -30,7 +31,7 @@ public class BookController {
         return ResponseEntity.ok(Converter.toBookDTOList(books));
     }
 
-    @RequestMapping(value = "/books/{id}", method = RequestMethod.GET)
+    @GetMapping("/books/{id}")
     public ResponseEntity<BookDTO> findById(@PathVariable final int id) {
         Optional<BookEntity> book = bookService.findById(id);
         if (book.isPresent()) {
@@ -40,7 +41,8 @@ public class BookController {
         }
     }
 
-    @RequestMapping(value = "/books", method = RequestMethod.POST)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/books")
     public ResponseEntity<BookDTO> addBook(@RequestBody final BookDTO book) {
         BookEntity bookEntity = bookService.save(BookEntity.builder()
                 .title(book.getTitle())

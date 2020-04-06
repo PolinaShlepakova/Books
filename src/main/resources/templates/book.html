@@ -2,17 +2,113 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title th:text="${book.title}"></title>
+    <title>Book</title>
 </head>
 <body>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
-<h1 th:text="${book.title}"></h1>
+<h1 id="title"></h1>
 
 <h3>Author</h3>
-<p th:text="${book.author}"></p>
+<p id="author"></p>
 
 <h3>ISBN</h3>
-<p th:text="${book.isbn}"></p>
+<p id="isbn"></p>
+
+<div th:if="${#authorization.expression('hasAuthority(''USER'')')}">
+    <button id="addToFav">Add to favorites</button>
+    <button id="deleteFromFav">Delete from favorites</button>
+</div>
+
+<script>
+    var path = window.location.pathname;
+    var bookId = path.substring(path.lastIndexOf('/') + 1);
+    var bookTitle;
+    var bookAuthor;
+    var bookIsbn;
+
+    function fillBookInfo(book) {
+        bookTitle = book.title;
+        bookAuthor = book.author;
+        bookIsbn = book.isbn;
+        $('#title').text(bookTitle);
+        $('#author').text(bookAuthor);
+        $('#isbn').text(bookIsbn);
+    }
+
+    function updateBookInfo() {
+        $.ajax({
+            type: 'GET',
+            url: '/books/' + bookId,
+            success: function (response) {
+                fillBookInfo(response);
+            }
+        });
+    }
+
+    function updateButtons() {
+        $.ajax({
+            type: 'GET',
+            url: '/books/' + bookId + '/is-favorited',
+            success: function (response) {
+                if (response) {
+                    // in favorites, so hide add button
+                    $('#addToFav').css('display', 'none');
+                } else {
+                    // not in favorites, so hide delete button
+                    $('#deleteFromFav').css('display', 'none');
+                }
+            }
+        });
+    }
+
+    $(function() {
+        $(document).ready(function() {
+            updateBookInfo();
+            updateButtons();
+        });
+
+        $('#addToFav').click(function() {
+            $.ajax({
+                type: 'PUT',
+                url: '/books/favorites/add',
+                dataType: 'json',
+                data: JSON.stringify({
+                    id: bookId,
+                    title: bookTitle,
+                    author: bookAuthor,
+                    isbn: bookIsbn
+                }),
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('Content-Type', 'application/json')
+                },
+                success: function (r) {
+                    location.reload();
+                }
+            });
+        });
+
+        $('#deleteFromFav').click(function() {
+            $.ajax({
+                type: 'DELETE',
+                url: '/books/favorites/delete',
+                dataType: 'json',
+                data: JSON.stringify({
+                    id: bookId,
+                    title: bookTitle,
+                    author: bookAuthor,
+                    isbn: bookIsbn
+                }),
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('Content-Type', 'application/json')
+                },
+                success: function (r) {
+                    location.reload();
+                }
+            });
+        });
+    });
+</script>
 
 </body>
 </html>

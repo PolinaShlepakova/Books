@@ -1,30 +1,42 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Books</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            padding: 5px;
+        }
+    </style>
 </head>
 <body>
-<style>
-    table {
-        border-collapse: collapse;
-    }
-
-    table, th, td {
-        border: 1px solid black;
-        padding: 5px;
-    }
-</style>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
-<h3>Add book</h3>
-<form id="addBookForm">
-    Title:
-    <input type="text" name="title"/>
-    Author:
-    <input type="text" name="author"/>
-    ISBN:
-    <input type="text" name="isbn"/>
-    <input type="submit" value="Save"/>
-</form>
+<div th:if="${#authorization.expression('!isAuthenticated()')}">
+    <p>You can login or register to access full functionality.</p>
+    <button id="login">Login</button>
+    <button id="register">Register</button>
+</div>
+
+<div th:if="${#authorization.expression('isAuthenticated()')}">
+    <button id="logout">Logout</button>
+</div>
+
+<div th:if="${#authorization.expression('hasAuthority(''ADMIN'')')}">
+    <h3>Add book</h3>
+    <form id="addBookForm">
+        Title:
+        <input type="text" name="title"/>
+        Author:
+        <input type="text" name="author"/>
+        ISBN:
+        <input type="text" name="isbn"/>
+        <input type="submit" value="Save"/>
+    </form>
+</div>
 
 <h3>Search by title or ISBN</h3>
 <form id="searchForm">
@@ -34,7 +46,8 @@
 
 <h3>Books</h3>
 <div>
-    <button id="getBooks">Get all books</button>
+    <button id="getBooks">Show all</button>
+    <button id="getFavorites" th:if="${#authorization.expression('hasAuthority(''USER'')')}">Show favorites</button>
     <table>
         <thead>
         <th>Title</th>
@@ -51,7 +64,11 @@
 <script>
     function addBookToTable(book) {
         var $books = $('#booksTable');
-        $books.append('<tr><td>' + book.title + '</td><td>' + book.author + '</td><td>' + book.isbn + '</td><td>' + book.id + '</td></tr>');
+        $books.append('<tr><td><a href=\"/book-page/'
+            + book.id + '\">' + book.title + '</a></td><td>'
+            + book.author + '</td><td>'
+            + book.isbn + '</td><td>'
+            + book.id + '</td></tr>');
     }
 
     function refillBooksTable(response) {
@@ -70,6 +87,20 @@
                 refillBooksTable(response);
             }
         });
+    }
+
+    function updateFavoritesList() {
+        $.ajax({
+            type: 'GET',
+            url: '/books/favorites',
+            success: function (response) {
+                refillBooksTable(response);
+            }
+        });
+    }
+
+    function appendToUrl(tail) {
+        location.href = location.href + tail;
     }
 
     $(function() {
@@ -116,6 +147,22 @@
 
         $('#getBooks').click(function() {
             updateBookList();
+        });
+
+        $('#getFavorites').click(function() {
+            updateFavoritesList();
+        });
+
+        $('#login').click(function() {
+            appendToUrl("login");
+        });
+
+        $('#register').click(function() {
+            appendToUrl("register-page");
+        });
+
+        $('#logout').click(function() {
+            appendToUrl("logout");
         });
     });
 </script>

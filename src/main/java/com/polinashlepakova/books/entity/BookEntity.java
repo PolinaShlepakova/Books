@@ -1,13 +1,12 @@
 package com.polinashlepakova.books.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -17,6 +16,7 @@ public class BookEntity {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @Column(name = "title")
@@ -27,4 +27,14 @@ public class BookEntity {
 
     @Column(name = "isbn")
     String isbn;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_to_books",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<UserEntity> users;
+
+
 }
