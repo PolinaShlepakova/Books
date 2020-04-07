@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,7 +44,7 @@ public class BookController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/books")
-    public ResponseEntity<BookDTO> addBook(@RequestBody final BookDTO book) {
+    public ResponseEntity<BookDTO> addBook(@Valid @RequestBody final BookDTO book) {
         BookEntity bookEntity = bookService.save(BookEntity.builder()
                 .title(book.getTitle())
                 .author(book.getAuthor())

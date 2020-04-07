@@ -12,7 +12,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -24,9 +26,10 @@ public class UserController {
     private final IUserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody final RegistrationDTO user) {
+    public ResponseEntity register(@Valid @RequestBody final RegistrationDTO user) {
         if (userService.loginExists(user.getLogin())) {
-            return new ResponseEntity<>("Login already exists",
+            return new ResponseEntity<>(
+                    Collections.singletonList("Login already exists"),
                     HttpStatus.FORBIDDEN);
         }
         String userPassword = user.getPassword();

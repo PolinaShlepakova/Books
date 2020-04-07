@@ -20,6 +20,14 @@
 </div>
 
 <script>
+    function displayErrors(response) {
+        var innerText = "";
+        $.each(response.responseJSON, function(id, mes){
+            innerText = innerText + mes + "<br>";
+        });
+        $('#errorDiv').html(innerText);
+    }
+
     $(function() {
         $('#registerForm').submit(function(e) {
             e.preventDefault();
@@ -37,8 +45,8 @@
                 success: function (r) {
                     location.href = "/login";
                 },
-                error: function (r) {
-                    $('#errorDiv').text(r.responseText);
+                error: function (response) {
+                    displayErrors(response);
                 }
             });
         });

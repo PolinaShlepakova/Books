@@ -10,6 +10,10 @@
             border: 1px solid black;
             padding: 5px;
         }
+
+        #errorDiv {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -27,6 +31,7 @@
 
 <div th:if="${#authorization.expression('hasAuthority(''ADMIN'')')}">
     <h3>Add book</h3>
+    <div id="errorDiv"></div>
     <form id="addBookForm">
         Title:
         <input type="text" name="title"/>
@@ -103,6 +108,14 @@
         location.href = location.href + tail;
     }
 
+    function displayErrors(response) {
+        var innerText = "";
+        $.each(response.responseJSON, function(id, mes){
+            innerText = innerText + mes + "<br>";
+        });
+        $('#errorDiv').html(innerText);
+    }
+
     $(function() {
         $(document).ready(function() {
             updateBookList();
@@ -125,6 +138,10 @@
                 },
                 success: function (book) {
                     addBookToTable(book);
+                    $("#addBookForm")[0].reset();
+                },
+                error: function (response) {
+                    displayErrors(response);
                 }
             });
         });
